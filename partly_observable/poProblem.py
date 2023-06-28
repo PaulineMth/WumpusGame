@@ -220,7 +220,8 @@ class POWumpus(POProblem):
     PERCEPTS = {"WallOnLeft" : 'L', "WallOnRight" : 'R', "WallOnDown" : 'D',  "WallOnUp" : 'U', "SnareClose" : 'S', "WumpusClose": 'W'}
     
     def __init__(self):
-        self.problem = Wumpus()
+        super().__init__(Wumpus())  # Appel au constructeur de la classe parente
+        self.maze = self.problem.maze  # Utilisation de l'attribut maze de la classe parente
         
     def percepts(self, state):
         """ Returns the percepts that the agent observes in a given state.
@@ -288,3 +289,4 @@ class POWumpus(POProblem):
             if hs > h:
                 h = hs
         return h
+

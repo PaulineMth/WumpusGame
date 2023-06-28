@@ -6,6 +6,7 @@ This module contains the different classes to run the search algorithms in a par
 @author: Hugo Gilbert
 """
 
+
 class AndOrSearch:
     """ Classe pour exécuter l'algorithme AndOrSearch. """
 
@@ -53,7 +54,7 @@ class AOStar:
         """
         Parameters
         ----------
-        po_problem : poProblem
+        po_problem : POProblem
             The partially observable problem to be solved. 
         heuristic : function
             The heuristic function to guide the search.
@@ -64,7 +65,33 @@ class AOStar:
         
         
     def solve(self):
-        """
-        TODO
-        """
-        pass
+        initial_state = self.po_problem.getInitialState()
+        return self.aoSearch(initial_state, [])
+
+    def aoSearch(self, b_state, path):
+        if self.po_problem.isFinal(b_state):
+            return []
+
+        if b_state in path:
+            return 'failure'
+
+        path.append(b_state)
+        actions = self.po_problem.actions(b_state)
+        plan = None
+        best_cost = float('inf')
+        for action in actions:
+            possible_states = self.po_problem.update(b_state, action)
+            for possible_state in possible_states:
+                h_value = self.heuristic(possible_state)
+                cost = len(path) + h_value
+                if cost < best_cost:
+                    and_result = self.aoSearch(possible_state, path)
+                    if and_result != 'failure':
+                        plan = [action] + and_result
+                        best_cost = cost
+        path.remove(b_state)
+
+        if plan is None:
+            return 'failure'
+        return plan
+
