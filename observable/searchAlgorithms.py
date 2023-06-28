@@ -221,7 +221,6 @@ class Frontier:
     def show(self):
         """ Displays the contents of the frontier. """
         for score, node in self.frontier:
-            #print("Score:", score)
             print("Node:", node)
 
 
@@ -252,7 +251,7 @@ class AStar:
 
         while True:
             if frontier.isEmpty():
-                return "failure"
+                return "echec"
 
             node_cost, node = frontier.pop()
 
@@ -301,7 +300,7 @@ class IDAStar:
             if result == "found":
                 return self.solution_path, self.solution_cost
             if result == float("inf"):
-                return "failure", float('inf')
+                return "echec", float('inf')
             threshold = result
 
     def search(self, node, g, threshold):

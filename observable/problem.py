@@ -84,7 +84,7 @@ class Problem(ABC):
         """ The cost function of the search problem.
         Parameters
         ----------
-        state : State 
+        state : State
             a given state  
         action : char
             a valid action in the state
@@ -297,31 +297,46 @@ class Wumpus(Problem):
         return self.WumpusState()
     
     def generate_random_instance(self):
+        """
+        Generates a random instance of the Wumpus search problem.
+
+        This method randomly generates the positions of the Wumpus, the treasure, and the traps in the maze.
+
+        Returns
+        -------
+        None
+         """
         self.n = np.random.randint(4, 9)
 
         # Générer aléatoirement les positions du Wumpus et du trésor
         self.wumpus_position = (np.random.randint(self.n), np.random.randint(self.n))
         self.treasure_position = (np.random.randint(self.n), np.random.randint(self.n))
 
-        # Placer le Wumpus et le trésor dans le labyrinthe
-        self.maze = np.full((self.n, self.n), Wumpus.ELEMENTS["EMPTY"])
-        self.maze[self.wumpus_position] = Wumpus.ELEMENTS["WUMPUS"]
-        self.maze[self.treasure_position] = Wumpus.ELEMENTS["TREASURE"]
-
         # Générer les positions des pièges
-        min_num_traps = int(0.1 * self.n * self.n)  # Au moins 30% de la taille de la grille
-        max_num_traps = int(0.2 * self.n * self.n)  # Nombre maximum de pièges (la grille moins les positions du Wumpus et du trésor)
+        min_num_traps = int(0.1 * self.n * self.n)  # Nombre minimum de pièges
+        max_num_traps = int(0.2 * self.n * self.n)  # Nombre maximum de pièges
         num_traps = np.random.randint(min_num_traps, max_num_traps + 1)
         trap_positions = []
-        while len(trap_positions) < num_traps:
+        self.trap_positions = []
+        while len(self.trap_positions) < num_traps:
             trap_x = np.random.randint(self.n)
             trap_y = np.random.randint(self.n)
-            if (trap_x, trap_y) != self.wumpus_position and (trap_x, trap_y) != self.treasure_position and (trap_x, trap_y) not in trap_positions:
-                trap_positions.append((trap_x, trap_y))
-                self.maze[trap_x, trap_y] = Wumpus.ELEMENTS["SNARE"]
+            if (trap_x, trap_y) != self.wumpus_position and (trap_x, trap_y) != self.treasure_position and (trap_x, trap_y) not in self.trap_positions:
+                self.trap_positions.append((trap_x, trap_y))
 
+        # Placer le Wumpus, le trésor et les pièges dans le labyrinthe
+        self.maze = np.full((self.n, self.n), Wumpus.ELEMENTS["EMPTY"])
+        for trap_pos in self.trap_positions:
+            self.maze[trap_pos] = Wumpus.ELEMENTS["SNARE"]
+        self.maze[self.treasure_position] = Wumpus.ELEMENTS["TREASURE"]
+        self.maze[self.wumpus_position] = Wumpus.ELEMENTS["WUMPUS"]
 
-    
+        print("\nn :", self.n)
+        print("Nombre de pièges :", num_traps)
+        initial_state = self.getInitialState()
+        self.display_wumpus(initial_state)
+
+            
     def heuristic(self, state):
         """Une fonction heuristique qui calcule la distance en ligne droite entre toutes les positions possibles et la position du trésor.
 
@@ -343,7 +358,21 @@ class Wumpus(Problem):
 
         return straight_line_distance
     
+    def display_wumpus(self, state):
+        """ Display the maze
+        Parameters
+        ----------
+        state : State 
+            a given state
+        """
+        maze = self.maze.copy()
 
-    
+        maze[state.position] = 'A'  # A for Alan
+        maze = np.rot90(maze)
+
+        for row in maze:
+            print('  '.join(row))
+
+        
     
     

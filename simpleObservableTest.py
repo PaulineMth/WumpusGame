@@ -11,76 +11,140 @@ from observable.searchAlgorithms import AStar
 from observable.searchAlgorithms import IDAStar
 import numpy as np
 from time import time
+import signal
+
+class TimeoutError(Exception):
+    pass
+
+def timeout_handler(signum, frame):
+    raise TimeoutError("Timeout occurred")
 
 def main():
+    print("-----------------------------------------------------------------")
+    print("----------------- Bienvenue dans le Wumpus Game -----------------")
+    print("-----------------------------------------------------------------")
+
+    signal.signal(signal.SIGALRM, timeout_handler)
+
     wumpus = Wumpus()
 
-    def display_wumpus(wumpus, state):
-        maze = wumpus.maze.copy()
-
-        maze[state.position] = 'A' #A for Alan
-        maze = np.rot90(maze)
-
-        for row in maze:
-            print('  '.join(row))
-    
+    # Algorithme A* sur la grille de départ
     astar = AStar(wumpus, wumpus.heuristic)
 
     start_time = time()
-    solution = astar.solve()
-    end_time = time()
+    try:
+        signal.alarm(10)  # Timeout de 10 secondes
+        solution = astar.solve()
+        execution_time_astar = time() - start_time
+        signal.alarm(0)  # Annuler le timeout
 
-    execution_time_astar = end_time - start_time
-    solution_cost = astar.solution_cost
+        solution_cost = astar.solution_cost
 
-    # Affichez la solution obtenue
-    print("------------- ALGO A* ---------------")
-    print("Solution A*:", solution_cost)
-    print("Solution A*:", solution)
-    print("Temps d'exécution A*:", execution_time_astar, "secondes")
+        print("Grille de départ du jeu :\n")
+        state = wumpus.getInitialState()
+        wumpus.display_wumpus(state)
 
-    state = wumpus.getInitialState() 
-    display_wumpus(wumpus, state)
+        print("\n------------- ALGO A* ---------------")
+        print("\nChemin de la solution A* :", solution)
+        print("Coût :", solution_cost)
+        print("Temps d'exécution A* :", execution_time_astar, "secondes")
+    except TimeoutError:
+        print("Temps d'exécution A* dépassé (timeout)")
 
+    # Algorithme IDA* sur la grille de départ
     IDAstar = IDAStar(wumpus, wumpus.heuristic)
 
     start_time = time()
-    solution_path, solution_cost = IDAstar.solve()
-    end_time = time()
+    try:
+        signal.alarm(10)  # Timeout de 10 secondes
+        solution_path = IDAstar.solve()
+        execution_time_idastar = time() - start_time
+        signal.alarm(0)  # Annuler le timeout
 
-    execution_time_idastar = end_time - start_time
+        if solution_path == "echec":
+            print("Aucune solution trouvée.")
+        elif solution_path == "found":
+            print("Solution trouvée.")
+        else:
+            print("\n------------ ALGO IDA* --------------")
+            print("\nChemin de la solution:", solution_path)
+            print("Coût :", IDAstar.solution_cost)
+            print("Temps d'exécution IDA*:", execution_time_idastar, "secondes")
+            print("\n\n")
+    except TimeoutError:
+        print("Temps d'exécution IDA* dépassé (timeout)")
 
-    # Étape 4: Afficher la solution
-    if solution_path == "failure":
-        print("Aucune solution trouvée.")
-    elif solution_path == "found":
-        print("Solution trouvée.")
-    else:
-        print("------------- ALGO IDA* ---------------")
-        print("Coût de la solution:", solution_cost)
-        print("Chemin de la solution:", solution_path)
-        print("Temps d'exécution IDA*:", execution_time_idastar, "secondes")
+    import matplotlib.pyplot as plt
+
+    print("-----------------------------------------------------------------")
+    print("--------------- Génération des grilles aléatoires ---------------")
+
+    sizes = []
+    num_traps = []
+    execution_times_astar = []
+    execution_times_idastar = []
 
 
-    wumpus.generate_random_instance()
-    state = wumpus.getInitialState()  # Obtenir le nouvel état initial
-    display_wumpus(wumpus, state)
+    for _ in range(15):  # Exécutez le processus de génération aléatoire plusieurs fois pour différentes tailles de labyrinthe
+        wumpus = Wumpus()
+        wumpus.generate_random_instance()
 
-    astar = AStar(wumpus, wumpus.heuristic)
+        sizes.append(wumpus.n)
+        num_traps.append(len(wumpus.trap_positions))
 
-    start_time = time()
-    solution = astar.solve()
-    end_time = time()
+        astar = AStar(wumpus, wumpus.heuristic)
 
-    execution_time_astar = end_time - start_time
-    solution_cost = astar.solution_cost
+        start_time = time()
+        try:
+            signal.alarm(5)  # Timeout de 5 secondes
+            solution = astar.solve()
+            execution_time_astar = time() - start_time
+            signal.alarm(0) 
 
-    # Affichez la solution obtenue
-    print("------------- ALGO A* ---------------")
-    print("Solution A*:", solution_cost)
-    print("Solution A*:", solution)
-    print("Temps d'exécution A*:", execution_time_astar, "secondes")
+            solution_cost = astar.solution_cost
 
+            print("Chemin de la solution A* :", solution, ",", solution_cost, ")")
+            execution_times_astar.append(execution_time_astar)
+        except TimeoutError:
+            print("Temps d'exécution A* dépassé pour cette grille (timeout)")
+            execution_times_astar.append(None)
+
+        idastar = IDAStar(wumpus, wumpus.heuristic)
+
+        start_time = time()
+        try:
+            signal.alarm(20)  # Timeout de 20 secondes
+            solution_path = idastar.solve()
+            execution_time_idastar = time() - start_time
+            signal.alarm(0)
+
+            print("\nChemin de la solution IDA* :", solution_path)
+            execution_times_idastar.append(execution_time_idastar)
+        except TimeoutError:
+            print("Temps d'exécution IDA* dépassé pour cette grille (timeout)")
+            execution_times_idastar.append(None)
+
+    # Génération du premier graphique (A*)
+    fig, ax1 = plt.subplots(figsize=(6, 6))
+    scatter_astar = ax1.scatter(num_traps, execution_times_astar, c=sizes, cmap='viridis')
+    ax1.set_xlabel('Nombre de pièges')
+    ax1.set_ylabel("Temps d'exécution A* (secondes)")
+    ax1.set_title("Temps d'exécution de l'algorithme A*")
+
+    cbar = plt.colorbar(scatter_astar, ax=ax1, label='Taille du labyrinthe')
+
+    plt.show()
+
+    # Génération du deuxième graphique (IDA*)
+    fig, ax2 = plt.subplots(figsize=(6, 6))
+    scatter_idastar = ax2.scatter(num_traps, execution_times_idastar, c=sizes, cmap='viridis')
+    ax2.set_xlabel('Nombre de pièges')
+    ax2.set_ylabel("Temps d'exécution IDA* (secondes)")
+    ax2.set_title("Temps d'exécution de l'algorithme IDA*")
+
+    cbar = plt.colorbar(scatter_idastar, ax=ax2, label='Taille du labyrinthe')
+
+    plt.show()
 
 if __name__ == '__main__':
     main()
