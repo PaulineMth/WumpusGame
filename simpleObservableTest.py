@@ -12,6 +12,8 @@ from observable.searchAlgorithms import IDAStar
 import numpy as np
 from time import time
 import signal
+import matplotlib.pyplot as plt
+
 
 class TimeoutError(Exception):
     pass
@@ -74,7 +76,6 @@ def main():
     except TimeoutError:
         print("Temps d'exécution IDA* dépassé (timeout)")
 
-    import matplotlib.pyplot as plt
 
     print("-----------------------------------------------------------------")
     print("--------------- Génération des grilles aléatoires ---------------")
@@ -85,7 +86,7 @@ def main():
     execution_times_idastar = []
 
 
-    for _ in range(15):  # Exécutez le processus de génération aléatoire plusieurs fois pour différentes tailles de labyrinthe
+    for _ in range(5):  # Exécutez le processus de génération aléatoire plusieurs fois pour différentes tailles de labyrinthe
         wumpus = Wumpus()
         wumpus.generate_random_instance()
 
@@ -118,7 +119,7 @@ def main():
             execution_time_idastar = time() - start_time
             signal.alarm(0)
 
-            print("\nChemin de la solution IDA* :", solution_path)
+            print("Chemin de la solution IDA* :", solution_path)
             execution_times_idastar.append(execution_time_idastar)
         except TimeoutError:
             print("Temps d'exécution IDA* dépassé pour cette grille (timeout)")
@@ -129,10 +130,9 @@ def main():
     scatter_astar = ax1.scatter(num_traps, execution_times_astar, c=sizes, cmap='viridis')
     ax1.set_xlabel('Nombre de pièges')
     ax1.set_ylabel("Temps d'exécution A* (secondes)")
-    ax1.set_title("Temps d'exécution de l'algorithme A*")
+    ax1.set_title("Temps d'exécution des instances avec l'algorithme A*")
 
-    cbar = plt.colorbar(scatter_astar, ax=ax1, label='Taille du labyrinthe')
-
+    cbar = plt.colorbar(scatter_astar, ax=ax1, label='Taille du labyrinthe')    
     plt.show()
 
     # Génération du deuxième graphique (IDA*)
@@ -140,11 +140,12 @@ def main():
     scatter_idastar = ax2.scatter(num_traps, execution_times_idastar, c=sizes, cmap='viridis')
     ax2.set_xlabel('Nombre de pièges')
     ax2.set_ylabel("Temps d'exécution IDA* (secondes)")
-    ax2.set_title("Temps d'exécution de l'algorithme IDA*")
+    ax2.set_title("Temps d'exécution des instances avec l'algorithme IDA*")
 
     cbar = plt.colorbar(scatter_idastar, ax=ax2, label='Taille du labyrinthe')
 
     plt.show()
+
 
 if __name__ == '__main__':
     main()

@@ -12,42 +12,32 @@ from partly_observable.poSearchAlgorithms import AOStar
 import numpy as np
 from time import time
 
-
+"""
 def show_grid(actions, maze):
     state = list(maze.getInitialState())[0]  # Obtenir l'état initial à partir de l'objet maze
     
-    # Print the initial grid
     print("Initial Grid:")
     print_grid(maze, state)
-    # Appliquer toutes les actions à l'état
     for action in actions:
         state = maze.problem.transition(state, action)
+"""
 
-    # Afficher la grille finale
-    print("Grille finale :")
-    print_grid(maze, state)
-
-def print_grid(maze, state):
-
-    # Obtenir la grille actuelle à partir de l'objet maze
-    grid = maze.problem.maze.copy()
-
-    # Mettre à jour la grille avec l'état actuel
-    grid[state.position] = 'A'  # En supposant que 'A' représente l'agent
-
-    # Faire pivoter la grille pour aligner les actions avec la grille imprimée
-    grid = np.rot90(grid)
-
-    # Afficher la grille sous forme de représentation visuelle
-    for row in grid:
-        print(' '.join(row))
-
-
+def print_grid(maze, states):
+    for state in states:
+        grid = maze.problem.maze.copy()
+        grid[state.position] = 'A'  # A for Alan
+        grid = np.rot90(grid)
+        for row in grid:
+            print(' '.join(row))
+        print()
 
 
 def main():
 
     poWumpus = POWumpus()
+    print("--------------------------------------------------------------")
+    print("--------------- Grilles de départ potentielles ---------------")
+    print_grid(poWumpus, poWumpus.getInitialState())
     andOrSearch = AndOrSearch(poWumpus)
     start_time = time()
     solutionAndOrSearch = andOrSearch.solve()
@@ -56,9 +46,8 @@ def main():
     execution_time_andor = end_time - start_time
 
     if solutionAndOrSearch is not None:
-        print("-------------AOrSearch--------------- :")
+        print("---------------- AOrSearch ------------------\n")
         print("Solution trouvée :", solutionAndOrSearch)
-        show_grid(solutionAndOrSearch, poWumpus)  # Afficher la grille fina  # Afficher la grille
     else:
         print("Aucune solution trouvée.")
     print("Temps d'exécution:", execution_time_andor, "secondes")
@@ -72,17 +61,13 @@ def main():
 
     execution_time_andor = end_time - start_time
 
-    # Affichage de la solution
     if solutionAndOrStar is not None:
-        print("-------------AO*--------------- :")
+        print("\n------------------- AO* ---------------------\n")
         print("Solution trouvée :", solutionAndOrStar)
-        show_grid(solutionAndOrSearch, poWumpus)  # Afficher la grille fina
     else:
         print("Aucune solution trouvée.")
     print("Temps d'exécution:", execution_time_andor, "secondes")
 
-
-    
 
 
 if __name__ == '__main__':

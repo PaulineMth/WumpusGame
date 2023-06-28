@@ -293,20 +293,20 @@ class IDAStar:
     def solve(self):
         initial_state = self.problem.getInitialState()
         initial_node = Node(self.problem, initial_state, None, None)
-        threshold = self.heuristic(initial_state)
+        limit = self.heuristic(initial_state)
 
         while True:
-            result = self.search(initial_node, 0, threshold)
+            result = self.search(initial_node, 0, limit)
             if result == "found":
                 return self.solution_path, self.solution_cost
             if result == float("inf"):
                 return "echec", float('inf')
-            threshold = result
+            limit = result
 
-    def search(self, node, g, threshold):
+    def search(self, node, g, limit):
         f = g + self.heuristic(node.state)
 
-        if f > threshold:
+        if f > limit:
             return f
 
         if self.problem.isFinal(node.state):
@@ -317,7 +317,7 @@ class IDAStar:
         minimum = float("inf")
         for successor in node.expand():
             result = self.search(
-                successor, g + self.problem.actionCost(node.state, successor.actionFromFather), threshold
+                successor, g + self.problem.actionCost(node.state, successor.actionFromFather), limit
             )
             if result == "found":
                 return result

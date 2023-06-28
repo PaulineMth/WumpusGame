@@ -353,7 +353,6 @@ class Wumpus(Problem):
         treasure_x, treasure_y = self.treasure_position
         pos_x, pos_y = state.position
 
-        # Calcul de la distance en ligne droite entre la position actuelle et la position du trésor
         straight_line_distance = math.sqrt((treasure_x - pos_x)**2 + (treasure_y - pos_y)**2)
 
         return straight_line_distance
