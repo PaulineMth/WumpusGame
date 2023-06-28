@@ -40,9 +40,10 @@ def print_grid(maze, state):
 
 
 
-def main():
-    poWumpus = POWumpus()
 
+def main():
+
+    poWumpus = POWumpus()
     andOrSearch = AndOrSearch(poWumpus)
     start_time = time()
     solutionAndOrSearch = andOrSearch.solve()
@@ -52,7 +53,7 @@ def main():
 
     if solutionAndOrSearch is not None:
         print("-------------AOrSearch--------------- :")
-        print("Solution trouvée :")
+        print("Solution trouvée :", solutionAndOrSearch)
         show_grid(solutionAndOrSearch, poWumpus)  # Afficher la grille fina  # Afficher la grille
     else:
         print("Aucune solution trouvée.")
@@ -61,7 +62,6 @@ def main():
 
     poWumpus = POWumpus()
     andOrStar = AOStar(poWumpus ,poWumpus.heuristic)
-
     start_time = time()
     solutionAndOrStar = andOrStar.solve()
     end_time = time()
@@ -71,11 +71,15 @@ def main():
     # Affichage de la solution
     if solutionAndOrStar is not None:
         print("-------------AO*--------------- :")
-        print("Solution trouvée :")
+        print("Solution trouvée :", solutionAndOrStar)
         show_grid(solutionAndOrSearch, poWumpus)  # Afficher la grille fina
     else:
         print("Aucune solution trouvée.")
     print("Temps d'exécution:", execution_time_andor, "secondes")
+
+
+    
+
 
 if __name__ == '__main__':
     main()
