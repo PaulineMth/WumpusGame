@@ -15,7 +15,10 @@ from time import time
 
 def show_grid(actions, maze):
     state = list(maze.getInitialState())[0]  # Obtenir l'état initial à partir de l'objet maze
-
+    
+    # Print the initial grid
+    print("Initial Grid:")
+    print_grid(maze, state)
     # Appliquer toutes les actions à l'état
     for action in actions:
         state = maze.problem.transition(state, action)
@@ -25,6 +28,7 @@ def show_grid(actions, maze):
     print_grid(maze, state)
 
 def print_grid(maze, state):
+
     # Obtenir la grille actuelle à partir de l'objet maze
     grid = maze.problem.maze.copy()
 
