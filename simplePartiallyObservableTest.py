@@ -12,17 +12,8 @@ from partly_observable.poSearchAlgorithms import AOStar
 import numpy as np
 from time import time
 
-"""
-def show_grid(actions, maze):
-    state = list(maze.getInitialState())[0]  # Obtenir l'état initial à partir de l'objet maze
-    
-    print("Initial Grid:")
-    print_grid(maze, state)
-    for action in actions:
-        state = maze.problem.transition(state, action)
-"""
 
-def print_grid(maze, states):
+def display_InitalStates(maze, states):
     for state in states:
         grid = maze.problem.maze.copy()
         grid[state.position] = 'A'  # A for Alan
@@ -31,13 +22,27 @@ def print_grid(maze, states):
             print(' '.join(row))
         print()
 
+def display_FinalPoWumpus(actions, maze):
+    state = list(maze.getInitialState())[0]  # Obtenir l'état initial à partir de l'objet maze
+
+    for action in actions:
+        state = maze.problem.transition(state, action)
+
+    print("Grille finale")
+    display_PoWumpus(maze, state)
+
+def display_PoWumpus(maze, state):
+    grid = maze.problem.maze.copy()
+    grid[state.position] = 'A'  # A for Alan
+    grid = np.rot90(grid)
+    for row in grid:
+        print(' '.join(row))
 
 def main():
-
     poWumpus = POWumpus()
     print("--------------------------------------------------------------")
     print("--------------- Grilles de départ potentielles ---------------")
-    print_grid(poWumpus, poWumpus.getInitialState())
+    display_InitalStates(poWumpus, poWumpus.getInitialState())
     andOrSearch = AndOrSearch(poWumpus)
     start_time = time()
     solutionAndOrSearch = andOrSearch.solve()
@@ -50,8 +55,8 @@ def main():
         print("Solution trouvée :", solutionAndOrSearch)
     else:
         print("Aucune solution trouvée.")
-    print("Temps d'exécution:", execution_time_andor, "secondes")
-
+    print("Temps d'exécution:", execution_time_andor, "secondes\n")
+    display_FinalPoWumpus(solutionAndOrSearch, poWumpus) 
 
     poWumpus = POWumpus()
     andOrStar = AOStar(poWumpus ,poWumpus.heuristic)
@@ -66,9 +71,8 @@ def main():
         print("Solution trouvée :", solutionAndOrStar)
     else:
         print("Aucune solution trouvée.")
-    print("Temps d'exécution:", execution_time_andor, "secondes")
-
-
+    print("Temps d'exécution:", execution_time_andor, "secondes\n")
+    display_FinalPoWumpus(solutionAndOrSearch, poWumpus) 
 
 if __name__ == '__main__':
     main()
